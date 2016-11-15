@@ -1,0 +1,46 @@
+
+
+
+
+--ESTA FK NO VA 
+--FK HISTORIAL INSUMO
+
+ALTER TABLE GR16_historial_insumo ADD CONSTRAINT FK_GR16_historial_insumo_Insumo
+    FOREIGN KEY (id_insumo)
+    REFERENCES INSUMO(id_insumo)
+;
+------------------------------------------------------------------------------------
+
+
+
+-- Esta tabla no se utiliza ! 
+create table GR16_historial_insumo(
+    id_insumo               integer             NOT NULL,
+    fecha                   date                NOT NULL,
+    precio                  integer             NOT NULL,
+    constraint pk_GR16_historial_insumo primary key(id_insumo)
+)
+;
+--------------------------------------------------------
+
+--ESTE TRIGGER NO VA 
+
+--TRIGGER Historial_insumo
+CREATE FUNCTION FN_GR16_Cargar_historial_insumo()
+RETURNS TRIGGER AS $$
+begin
+    INSERT INTO GR16_historial_insumo VALUES(
+        new.id_insumo,
+        current_date,
+        new.precio
+    );
+    RETURN NEW;
+end;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER TR_GR16_historial_insumo_cargar
+AFTER UPDATE OR INSERT ON INSUMO
+FOR EACH ROW EXECUTE PROCEDURE FN_GR16_Cargar_historial_insumo();
+
+--------------------------------------------
